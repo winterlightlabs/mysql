@@ -508,6 +508,9 @@ function dummy () {
 
 exports.connect = function (config, intern, callback) {
   let db;
+  // See: https://github.com/db-migrate/mysql/issues/45
+  const configWithoutDriver = { ...config };
+  delete configWithoutDriver.driver;
 
   internals = intern;
   log = internals.mod.log;
@@ -516,9 +519,9 @@ exports.connect = function (config, intern, callback) {
   internals.interfaces.SeederInterface._makeParamArgs = dummy;
 
   if (typeof mysql.createConnection === 'undefined') {
-    db = config.db || mysql.createClient(config);
+    db = configWithoutDriver.db || mysql.createClient(configWithoutDriver);
   } else {
-    db = config.db || mysql.createConnection(config);
+    db = configWithoutDriver.db || mysql.createConnection(configWithoutDriver);
   }
 
   db.connect(function (err) {
